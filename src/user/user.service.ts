@@ -1,24 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user';
 
 @Injectable()
 export class UserService {
-  userRepo: Repository<User>;
-
-  // constructor(userRepo: Repository<User>) {
-  //   this.userRepo = userRepo; // TODO ? + import module
-  // }
+  constructor(
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+  ) {}
 
   /**
    * Login
    */
-  login(email: string, password: string): string {
-    const user: User = new User();
-    // const user = this.userRepo.findOneBy({
-    //  email,
-    //  password
-    // })
+  async login(email: string, password: string): Promise<string> {
+    // const users = await this.userRepo.findByIds([1]);
+    // console.log(users);
     return 'Hallo ProPra!!!';
   }
 
