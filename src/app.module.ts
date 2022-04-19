@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 
-// TODO install database driver https://www.npmjs.com/package/typeorm
 @Module({
-  imports: [UserModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [ConfigModule.forRoot({isGlobal: true}), AuthModule, UserModule, PrismaModule], 
 })
 export class AppModule {}

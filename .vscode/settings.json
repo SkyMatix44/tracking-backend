@@ -1,15 +1,14 @@
 {
   "editor.codeActionsOnSave": {
+
     "source.organizeImports": true
   },
   "workbench.colorCustomizations": {
-    "statusBar.background": "#ff0000",
-    "activityBar.activeBorder": "#ff0000",
-    // "activityBar.inactiveForeground": "#ee792c",
+    "statusBar.background": "#050505",
+    "activityBar.activeBorder": "#05c289",
+    "activityBar.inactiveForeground": "#05c289",
     "activityBarBadge.background": "#ffffff",
     "activityBarBadge.foreground": "#302e2e"
-    // "activityBar.foreground": "#ee792c",
-    // "activityBar.inactiveForeground": "#ffffff60"
   },
   "explorer.compactFolders": false
 }
