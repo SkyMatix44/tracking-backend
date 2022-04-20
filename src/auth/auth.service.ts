@@ -5,6 +5,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as argon from 'argon2';
 import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from './dto';
+import { SignUpDto } from './dto/signUp.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
    * @param AuthDto dto
    * @returns Promise<{access_token : string}>
    */
-  async signup(dto: AuthDto) {
+  async signup(dto: SignUpDto) {
     //generate the password
     const hash = await argon.hash(dto.password);
     //try to create a new user with credentials
@@ -30,7 +31,14 @@ export class AuthService {
         data: {
           email: dto.email,
           hash: hash,
-          //TODO: Migrate to SignUpDto
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          gender: dto.gender,
+          address: dto.address,
+          birthday: dto.birthday,
+          height: dto.height,
+          weight: dto.weight,
+          role: dto.role
         },
       });
       //return saved users JWT

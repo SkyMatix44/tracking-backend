@@ -25,9 +25,9 @@ model User {
   lastName String
 
   gender String
-  adress String
-  birthday String
+  address String
+  birthday DateTime
   height Int
   weight Int
-  role Int
+  role String @default("USER")
 }
