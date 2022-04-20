@@ -26,8 +26,8 @@ model User {
 
   gender String
   address String
-  birthday DateTime
+  birthday String //Dont know why Date does not work properly with dto
   height Int
   weight Int
-  role String @default("USER")
+  role String
 }

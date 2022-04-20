@@ -35,7 +35,7 @@ export class AuthService {
           lastName: dto.lastName,
           gender: dto.gender,
           address: dto.address,
-          birthday: dto.birthday,
+          birthday: dto.birthday.toString(),
           height: dto.height,
           weight: dto.weight,
           role: dto.role
