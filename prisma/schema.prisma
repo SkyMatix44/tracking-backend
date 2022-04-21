@@ -37,8 +37,8 @@ model User {
   projects   UsersOnProjects[] //n to m relation
 
   //Direct dependecies
-  universityId Int
-  university   University @relation(fields: [universityId], references: [id])
+  universityId Int?
+  university   University? @relation(fields: [universityId], references: [id])
 }
 
 // Define the `Project` table in the database
@@ -57,9 +57,9 @@ model Project {
 
 //Define the `UsersOnProjects` table in the database
 model UsersOnProjects {
-  userId    Int     
+  userId    Int
   user      User    @relation(fields: [userId], references: [id])
-  projectId Int     
+  projectId Int
   project   Project @relation(fields: [projectId], references: [id])
 
   @@id([userId, projectId])
@@ -77,14 +77,12 @@ model Activity {
   bloodSugarOxygen Int?
 
   //Direct dependencies
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
+  userId         Int?
+  user           User?        @relation(fields: [userId], references: [id])
   activityTypeId Int
   activityType   ActivityType @relation(fields: [activityTypeId], references: [id])
-
-  projectId Int
-  project   Project @relation(fields: [projectId], references: [id])
+  projectId      Int?
+  project        Project?     @relation(fields: [projectId], references: [id])
 }
 
 // Define the `ActivityType` table in the database
