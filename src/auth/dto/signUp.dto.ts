@@ -1,4 +1,5 @@
-import { IsDateString, IsEmail, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { Role } from '@prisma/client';
+import { IsDateString, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class SignUpDto {
     @IsEmail()
@@ -37,7 +38,7 @@ export class SignUpDto {
     @IsNotEmpty()
     weight:number;
 
-    @IsString()
+    @IsEnum(Role)
     @IsNotEmpty()
-    role: string;
+    role: Role;
 }
