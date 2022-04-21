@@ -16,22 +16,113 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  email String @unique
-  hash  String
+  email     String  @unique
+  hash      String
   validated Boolean @default(false)
-  blocked Boolean   @default(false)
+  blocked   Boolean @default(false)
 
-  firstName String 
-  lastName String
+  firstName String
+  lastName  String
 
-  gender String
-  address String
+  gender   String
+  address  String
   birthday String //Dont know why Date does not work properly with dto
-  height Int
-  weight Int
-  role Role @default(USER)
+  height   Int
+  weight   Int
+  role     Role   @default(USER)
+
+  //Indirect dependencies
+  activities Activity[]
+  news       News[]
+  projects   UsersOnProjects[] //n to m relation
+
+  //Direct dependecies
+  universityId Int
+  university   University @relation(fields: [universityId], references: [id])
 }
 
+// Define the `Project` table in the database
+model Project {
+  id         Int    @id @default(autoincrement())
+  start_date String
+  end_date   String
+
+  name        String
+  description String
+
+  //Indirect dependencies
+  activities Activity[]
+  users      UsersOnProjects[] //n to m relation
+}
+
+//Define the `UsersOnProjects` table in the database
+model UsersOnProjects {
+  userId    Int     
+  user      User    @relation(fields: [userId], references: [id])
+  projectId Int     
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@id([userId, projectId])
+}
+
+// Define the `Activity` table in the database
+model Activity {
+  id Int @id @default(autoincrement())
+
+  start_date       String
+  end_date         String
+  hearthrate       Int
+  steps            Int
+  distance         Int
+  bloodSugarOxygen Int?
+
+  //Direct dependencies
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  activityTypeId Int
+  activityType   ActivityType @relation(fields: [activityTypeId], references: [id])
+
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id])
+}
+
+// Define the `ActivityType` table in the database
+model ActivityType {
+  id Int @id @default(autoincrement())
+
+  name String
+
+  //Indirect dependencies
+  activities Activity[]
+}
+
+// Define the `University` table in the database
+model University {
+  id Int @id @default(autoincrement())
+
+  name    String
+  address String
+
+  //Indirect dependencies
+  users User[]
+}
+
+// Define the `News` table in the database
+model News {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  title String
+  text  String
+
+  //Direct dependencies
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+// Enum to define the User-Role
 enum Role {
   USER
   SCIENTIST
