@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as argon from 'argon2';
 import { PrismaService } from './../prisma/prisma.service';
@@ -42,7 +43,7 @@ export class AuthService {
         },
       });
       //return saved users JWT
-      return this.signToken(user.id, user.email);
+      return this.signToken(user.id, user.email, user.role);
       //catch error if Credentials are already taken and send a 403 Response
     } catch (error) {
       //Check Primsa Docs for more
@@ -74,20 +75,22 @@ export class AuthService {
     // if password incorrect throw exception and send 403 Response
     if (!pwMatches) throw new ForbiddenException('Credentials incorrect');
     // send back the users JWT
-    return this.signToken(user.id, user.email);
+    return this.signToken(user.id, user.email, user.role);
   }
 
   /**
    * Helper Function to create JWT-Token with 'JWT_SECRET' from .env
    * 
    * @param userId 
-   * @param email 
+   * @param email
+   * @param role 
    * @returns Promise<{access_token : string}>
    */
-  async signToken(userId: number, email: string): Promise<{access_token : string}> {
+  async signToken(userId: number, email: string, role: Role): Promise<{access_token : string}> {
     const payload = {
       sub: userId,
       email: email,
+      role : role
     };
     // Get secret from config of .env file (not published on GitHub)
     const secret = this.config.get('JWT_SECRET');
