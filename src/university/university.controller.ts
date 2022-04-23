@@ -1,4 +1,4 @@
-import { Controller, Param, ParseIntPipe, Patch } from '@nestjs/common';
+import { Controller, Delete, Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { Body, Post } from '@nestjs/common';
 import { CreateUniversityDto } from './dto/index';
 import { UniversityService } from './university.service';
@@ -15,5 +15,10 @@ export class UniversityController {
   @Patch(':id')
   UpdateUniversity(@Param('id', ParseIntPipe) universityId: number, @Body() dto: CreateUniversityDto) {
     return this.universityService.update(universityId, dto);
+  }
+
+  @Delete(':id')
+  DeleteUniversity(@Param('id', ParseIntPipe) universityId: number){
+      return this.universityService.delete(universityId);
   }
 }

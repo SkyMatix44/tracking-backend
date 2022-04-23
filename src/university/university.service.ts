@@ -49,4 +49,16 @@ export class UniversityService {
     });
     return university;
   }
+
+  /**
+   * Delete a University by Id
+   *
+   */
+  async delete(universityId: number) {
+    await this.prisma.university.delete({
+      where: {
+        id: universityId,
+      },
+    });
+  }
 }
