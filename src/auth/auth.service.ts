@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as argon from 'argon2';
+import { MailService } from '../common/mail/mail.service';
 import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from './dto';
 import { SignUpDto } from './dto/signUp.dto';
@@ -13,36 +14,47 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private mailService: MailService,
   ) {}
 
   /**
+   * TODO
    * Sign Up for User
    *
    * @param AuthDto dto
    * @returns Promise<{access_token : string}>
    */
-  async signup(dto: SignUpDto) {
+  async signup(dto: SignUpDto): Promise<{ access_token: string }> {
     //generate the password
     const hash = await argon.hash(dto.password);
     //try to create a new user with credentials
     try {
+      // const validationToken = generateToken();
+
       //save the new user in the db
-      const user = await this.prisma.user.create({
-        data: {
-          email: dto.email,
-          hash: hash,
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          gender: dto.gender,
-          address: dto.address,
-          birthday: dto.birthday.toString(),
-          height: dto.height,
-          weight: dto.weight,
-          role: dto.role
-        },
-      });
+      // const user = await this.prisma.user.create({
+      //   data: {
+      //     email: dto.email,
+      //     hash: hash,
+      //     firstName: dto.firstName,
+      //     lastName: dto.lastName,
+      //     gender: dto.gender,
+      //     address: dto.address,
+      //     birthday: dto.birthday.toString(),
+      //     height: dto.height,
+      //     weight: dto.weight,
+      //     role: dto.role
+      //   },
+      // });
       //return saved users JWT
-      return this.signToken(user.id, user.email);
+      // return this.signToken(user.id, user.email);
+
+      // Send mail with validation token
+      // await this.mailService.sendWithTemplate(user.email, MAIL_TEMPLATE_REGISTER, {
+      //   code: validationToken,
+      // });
+
+      return { access_token: 'TestToken' };
       //catch error if Credentials are already taken and send a 403 Response
     } catch (error) {
       //Check Primsa Docs for more
@@ -79,12 +91,12 @@ export class AuthService {
 
   /**
    * Helper Function to create JWT-Token with 'JWT_SECRET' from .env
-   * 
-   * @param userId 
-   * @param email 
+   *
+   * @param userId
+   * @param email
    * @returns Promise<{access_token : string}>
    */
-  async signToken(userId: number, email: string): Promise<{access_token : string}> {
+  async signToken(userId: number, email: string): Promise<{ access_token: string }> {
     const payload = {
       sub: userId,
       email: email,
@@ -98,7 +110,7 @@ export class AuthService {
     });
     //return access_token as an Object
     return {
-      access_token : token,
-    }
+      access_token: token,
+    };
   }
 }
