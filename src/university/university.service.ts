@@ -1,10 +1,8 @@
-import { User } from './../../node_modules/.prisma/client/index.d';
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { University } from './../../node_modules/.prisma/client/index.d';
+import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { CreateUniversityDto, UpdateUniversityDto } from './dto';
-import { Prisma } from '@prisma/client';
-
 @Injectable()
 export class UniversityService {
   constructor(private prisma: PrismaService) {}
@@ -60,5 +58,28 @@ export class UniversityService {
         id: universityId,
       },
     });
+  }
+
+  /**
+   * Get University by Id
+   *
+   * @param universityId
+   * @returns Prisma.Prisma__UniversityClient<University>
+   */
+  async get(universityId: number) {
+    return this.prisma.university.findFirst({
+      where: {
+        id: universityId,
+      },
+    });
+  }
+
+  /**
+   * Get All Universities
+   *
+   * @returns PrismaPromise<...>
+   */
+  async getAll() {
+    return this.prisma.university.findMany();
   }
 }
