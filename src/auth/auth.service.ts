@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as argon from 'argon2';
 import { MailService } from '../common/mail/mail.service';
@@ -29,35 +30,34 @@ export class AuthService {
     const hash = await argon.hash(dto.password);
     //try to create a new user with credentials
     try {
-      // const validationToken = generateToken();
+      // const validationToken = TokenGenerator.generateToken();
 
       //save the new user in the db
-      // const user = await this.prisma.user.create({
-      //   data: {
-      //     email: dto.email,
-      //     hash: hash,
-      //     firstName: dto.firstName,
-      //     lastName: dto.lastName,
-      //     gender: dto.gender,
-      //     address: dto.address,
-      //     birthday: dto.birthday.toString(),
-      //     height: dto.height,
-      //     weight: dto.weight,
-      //     role: dto.role
-      //   },
-      // });
-      //return saved users JWT
-      // return this.signToken(user.id, user.email);
+      const user = await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          hash: hash,
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          gender: dto.gender,
+          address: dto.address,
+          birthday: dto.birthday.toString(),
+          height: dto.height,
+          weight: dto.weight,
+          role: dto.role,
+          university: null,
+        },
+      });
 
       // Send mail with validation token
       // await this.mailService.sendWithTemplate(user.email, MAIL_TEMPLATE_REGISTER, {
       //   code: validationToken,
       // });
 
-      return { access_token: 'TestToken' };
-      //catch error if Credentials are already taken and send a 403 Response
+      //return saved users JWT
+      return this.signToken(user.id, user.email, user.role);
     } catch (error) {
-      //Check Primsa Docs for more
+      // catch error if Credentials are already taken and send a 403 Response
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials Taken');
@@ -86,7 +86,7 @@ export class AuthService {
     // if password incorrect throw exception and send 403 Response
     if (!pwMatches) throw new ForbiddenException('Credentials incorrect');
     // send back the users JWT
-    return this.signToken(user.id, user.email);
+    return this.signToken(user.id, user.email, user.role);
   }
 
   /**
@@ -94,12 +94,14 @@ export class AuthService {
    *
    * @param userId
    * @param email
+   * @param role
    * @returns Promise<{access_token : string}>
    */
-  async signToken(userId: number, email: string): Promise<{ access_token: string }> {
+  async signToken(userId: number, email: string, role: Role): Promise<{ access_token: string }> {
     const payload = {
       sub: userId,
       email: email,
+      role: role,
     };
     // Get secret from config of .env file (not published on GitHub)
     const secret = this.config.get('JWT_SECRET');
