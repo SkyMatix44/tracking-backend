@@ -99,8 +99,8 @@ model ActivityType {
 model University {
   id Int @id @default(autoincrement())
 
-  name    String
-  address String
+  name    String  @unique
+  address String  @unique
 
   //Indirect dependencies
   users User[]

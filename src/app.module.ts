@@ -3,8 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
+import { UniversityModule } from './university/university.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal: true}), AuthModule, UserModule, PrismaModule], 
+  imports: [ConfigModule.forRoot({isGlobal: true}), AuthModule, UserModule, PrismaModule, UniversityModule], 
 })
 export class AppModule {}
