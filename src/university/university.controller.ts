@@ -14,7 +14,6 @@ export class UniversityController {
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Post()
-  @Roles(Role.ADMIN, Role.SCIENTIST)
   createUniversity(@Body() dto: CreateUniversityDto) {
     return this.universityService.create(dto);
   }
