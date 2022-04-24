@@ -1,0 +1,77 @@
+import { ArgumentsHost, Catch, ExceptionFilter, ForbiddenException, HttpStatus, Logger } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
+import { Prisma } from '@prisma/client';
+
+/**
+ * Global Exception Filter
+ * @see https://docs.nestjs.com/exception-filters
+ */
+@Catch()
+export class HttpExceptionFilter implements ExceptionFilter {
+  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+
+  catch(exception: unknown, host: ArgumentsHost): void {
+    const { httpAdapter } = this.httpAdapterHost;
+
+    if (httpAdapter) {
+      const ctx = host.switchToHttp();
+
+      const handleError: ErrorPayload = this.handleError(exception);
+      const httpStatus = handleError ? handleError.status : HttpStatus.BAD_REQUEST;
+      const message = handleError ? handleError.message : 'server error';
+
+      Logger.error(
+        `${handleError ? 'Handled Error' : 'Unhandled Error'} (Status: ${httpStatus}): ${message}\n${
+          exception ? exception.toString() : ''
+        }`,
+      );
+
+      const responseBody = {
+        statusCode: httpStatus,
+        timestamp: new Date().toISOString(),
+        path: httpAdapter.getRequestUrl(ctx.getRequest()),
+        message,
+      };
+
+      httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
+    } else {
+      Logger.error(`Error can not be handled:\n${exception ? exception.toString() : ''}`);
+    }
+  }
+
+  /**
+   * Try to handle error
+   */
+  private handleError(exception: unknown): ErrorPayload {
+    if (exception instanceof ForbiddenException) {
+      return {
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'forbidden operation',
+      };
+    }
+
+    // Database errors
+    if (
+      exception instanceof Prisma.PrismaClientValidationError ||
+      exception instanceof Prisma.PrismaClientKnownRequestError ||
+      exception instanceof Prisma.PrismaClientUnknownRequestError
+    ) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'database error',
+      };
+    }
+
+    return null;
+  }
+}
+
+/**
+ * Interface for error response
+ */
+interface ErrorPayload {
+  /** HTTP-Status-Code */
+  status: number;
+  /** Error message */
+  message: string;
+}

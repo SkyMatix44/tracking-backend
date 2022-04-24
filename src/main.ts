@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
@@ -11,6 +11,8 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-  await app.listen(3333);
+  const port: number = 3333;
+  await app.listen(port);
+  Logger.log(`Server start on port ${port}`);
 }
 bootstrap();
