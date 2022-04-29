@@ -1,6 +1,7 @@
-import { Role } from '@prisma/client';
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Role } from '@prisma/client';
+import { TrackingRequest } from '../middleware/auth.middleware';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -11,19 +12,13 @@ export class RolesGuard implements CanActivate {
     if (!roles) {
       return true;
     }
-    const request = context.switchToHttp().getRequest();
-    const user = request.user;
-    return this.matchRoles(roles, user.role);
+    const request: TrackingRequest = context.switchToHttp().getRequest();
+    const userRole = request.userRole;
+    return this.matchRoles(roles, userRole);
   }
 
   // Compare role of User with roles of Guard
-  matchRoles (roles: Role[], userRole: Role): boolean {
-    let isNotValid : boolean = false;
-    for (var role of roles){
-      if (role === userRole){
-        return true;
-      }
-    }
-    return isNotValid;
+  matchRoles(roles: Role[], userRole: Role): boolean {
+    return roles.some((role) => role == userRole);
   }
 }

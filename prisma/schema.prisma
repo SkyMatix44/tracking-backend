@@ -12,54 +12,59 @@ datasource db {
 
 // Define the `User` table in the database
 model User {
-  id         Int      @id @default(autoincrement())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id         Int       @id @default(autoincrement())
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
 
   email     String  @unique
   hash      String
   validated Boolean @default(false)
   blocked   Boolean @default(false)
 
+  validation_token   String?
+  new_email          String?
+  new_email_token    String?
+  new_password_token String?
+
   firstName String
   lastName  String
 
-  gender   String
-  address  String
-  birthday String //Dont know why Date does not work properly with dto
-  height   Int
-  weight   Int
-  role     Role   @default(USER)
+  gender   Gender?
+  address  String?
+  birthday Int?
+  height   Int? // im cm
+  weight   Float? // in kg
+  role     Role    @default(USER)
 
-  //Indirect dependencies
+  // Indirect dependencies
   activities Activity[]
   news       News[]
-  projects   UsersOnProjects[] //n to m relation
+  projects   UsersOnProjects[] // n to m relation
 
-  //Direct dependecies
+  // Direct dependecies
   universityId Int?
   university   University? @relation(fields: [universityId], references: [id])
 }
 
 // Define the `Project` table in the database
 model Project {
-  id         Int    @id @default(autoincrement())
-  start_date String
-  end_date   String
+  id         Int @id @default(autoincrement())
+  start_date Int
+  end_date   Int
 
   name        String
-  description String
+  description String @db.Text()
 
   //Indirect dependencies
   activities Activity[]
-  users      UsersOnProjects[] //n to m relation
+  users      UsersOnProjects[] // n to m relation
 }
 
-//Define the `UsersOnProjects` table in the database
+// Define the `UsersOnProjects` table in the database
 model UsersOnProjects {
-  userId    Int
+  userId    Int     @unique
   user      User    @relation(fields: [userId], references: [id])
-  projectId Int
+  projectId Int     @unique
   project   Project @relation(fields: [projectId], references: [id])
 
   @@id([userId, projectId])
@@ -69,19 +74,19 @@ model UsersOnProjects {
 model Activity {
   id Int @id @default(autoincrement())
 
-  start_date       String
-  end_date         String
-  hearthrate       Int
-  steps            Int
-  distance         Int
-  bloodSugarOxygen Int?
+  start_date       Int
+  end_date         Int
+  hearthrate       Int?
+  steps            Int?
+  distance         Float? // in km
+  bloodSugarOxygen Float?
 
   //Direct dependencies
   userId         Int?
   user           User?        @relation(fields: [userId], references: [id])
   activityTypeId Int
   activityType   ActivityType @relation(fields: [activityTypeId], references: [id])
-  projectId      Int?
+  projectId      Int
   project        Project?     @relation(fields: [projectId], references: [id])
 }
 
@@ -99,8 +104,8 @@ model ActivityType {
 model University {
   id Int @id @default(autoincrement())
 
-  name    String  @unique
-  address String  @unique
+  name    String
+  address String
 
   //Indirect dependencies
   users User[]
@@ -108,16 +113,16 @@ model University {
 
 // Define the `News` table in the database
 model News {
-  id         Int      @id @default(autoincrement())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id         Int       @id @default(autoincrement())
+  created_at DateTime  @default(now())
+  updated_at DateTime? @updatedAt
 
   title String
-  text  String
+  text  String @db.Text
 
   //Direct dependencies
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
 }
 
 // Enum to define the User-Role
@@ -125,4 +130,11 @@ enum Role {
   USER
   SCIENTIST
   ADMIN
+}
+
+// Enum to define Genders
+enum Gender {
+  MALE
+  FEMALE
+  DIVERSE
 }
