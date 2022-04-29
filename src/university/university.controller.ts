@@ -21,26 +21,26 @@ export class UniversityController {
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
-  UpdateUniversity(@Param('id', ParseIntPipe) universityId: number, @Body() dto: CreateUniversityDto) {
+  updateUniversity(@Param('id', ParseIntPipe) universityId: number, @Body() dto: CreateUniversityDto) {
     return this.universityService.update(universityId, dto);
   }
 
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
-  DeleteUniversity(@Param('id', ParseIntPipe) universityId: number){
-      return this.universityService.delete(universityId);
+  deleteUniversity(@Param('id', ParseIntPipe) universityId: number) {
+    return this.universityService.delete(universityId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  GetUniversity(@Param('id', ParseIntPipe) universityId: number){
-      return this.universityService.get(universityId);
+  getUniversity(@Param('id', ParseIntPipe) universityId: number) {
+    return this.universityService.get(universityId);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  GetAllUniversities(){
-      return this.universityService.getAll();
+  getAllUniversities() {
+    return this.universityService.getAll();
   }
 }

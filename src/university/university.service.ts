@@ -1,4 +1,3 @@
-import { University } from './../../node_modules/.prisma/client/index.d';
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';

@@ -6,9 +6,17 @@ import { HttpExceptionFilter } from './core/exception/HttpExceptionFilter';
 import { PrismaModule } from './prisma/prisma.module';
 import { UniversityModule } from './university/university.module';
 import { UserModule } from './user/user.module';
+import { ActivityTypeModule } from './activityType/activityType.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UserModule, PrismaModule, UniversityModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
+    UserModule,
+    PrismaModule,
+    UniversityModule,
+    ActivityTypeModule,
+  ],
   providers: [
     {
       provide: APP_FILTER,
