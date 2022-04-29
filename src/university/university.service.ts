@@ -1,7 +1,5 @@
-import { University } from './../../node_modules/.prisma/client/index.d';
-import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { CreateUniversityDto, UpdateUniversityDto } from './dto';
 @Injectable()
 export class UniversityService {
@@ -14,20 +12,12 @@ export class UniversityService {
    * @returns university University
    */
   async create(dto: CreateUniversityDto) {
-    try {
-      const university = await this.prisma.university.create({
-        data: {
-          ...dto,
-        },
-      });
-      return university;
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('University already exists');
-        }
-      }
-    }
+    const university = await this.prisma.university.create({
+      data: {
+        ...dto,
+      },
+    });
+    return university;
   }
 
   /**

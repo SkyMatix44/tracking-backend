@@ -1,6 +1,18 @@
-import { ArgumentsHost, Catch, ExceptionFilter, ForbiddenException, HttpStatus, Logger } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  ForbiddenException,
+  HttpStatus,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-import { Prisma } from '@prisma/client';
+import {
+  PrismaClientKnownRequestError,
+  PrismaClientUnknownRequestError,
+  PrismaClientValidationError,
+} from '@prisma/client/runtime';
 
 /**
  * Global Exception Filter
@@ -43,7 +55,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
    * Try to handle error
    */
   private handleError(exception: unknown): ErrorPayload {
-    if (exception instanceof ForbiddenException) {
+    if (exception instanceof ForbiddenException || exception instanceof UnauthorizedException) {
       return {
         status: HttpStatus.UNAUTHORIZED,
         message: 'forbidden operation',
@@ -51,11 +63,28 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     // Database errors
-    if (
-      exception instanceof Prisma.PrismaClientValidationError ||
-      exception instanceof Prisma.PrismaClientKnownRequestError ||
-      exception instanceof Prisma.PrismaClientUnknownRequestError
-    ) {
+    if (exception instanceof PrismaClientKnownRequestError) {
+      if (exception.code === 'P2001') {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          message: 'entity not found',
+        };
+      }
+
+      if (exception.code === 'P2002') {
+        return {
+          status: HttpStatus.CONFLICT,
+          message: 'already exists',
+        };
+      }
+
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: 'database error',
+      };
+    }
+
+    if (exception instanceof PrismaClientValidationError || exception instanceof PrismaClientUnknownRequestError) {
       return {
         status: HttpStatus.BAD_REQUEST,
         message: 'database error',
