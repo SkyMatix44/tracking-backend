@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UniversityModule } from './university/university.module';
 import { UserModule } from './user/user.module';
 import { ActivityTypeModule } from './activityType/activityType.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ActivityTypeModule } from './activityType/activityType.module';
     PrismaModule,
     UniversityModule,
     ActivityTypeModule,
+    ActivityModule,
   ],
   providers: [
     {
