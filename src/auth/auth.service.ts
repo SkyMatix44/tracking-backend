@@ -2,9 +2,10 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import * as argon from 'argon2';
+import { MAIL_TEMPLATE_REGISTER } from '../common/mail/mail-tempates';
 import { MailService } from '../common/mail/mail.service';
+import { TokenGeneratorService } from '../common/token-generator/token-generator.service';
 import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from './dto';
 import { SignUpDto } from './dto/signUp.dto';
@@ -16,10 +17,10 @@ export class AuthService {
     private jwt: JwtService,
     private config: ConfigService,
     private mailService: MailService,
+    private tokenGeneratorService: TokenGeneratorService,
   ) {}
 
   /**
-   * TODO
    * Sign Up for User
    *
    * @param AuthDto dto
@@ -28,44 +29,35 @@ export class AuthService {
   async signup(dto: SignUpDto): Promise<{ access_token: string }> {
     //generate the password
     const hash = await argon.hash(dto.password);
-    //try to create a new user with credentials
-    try {
-      // const validationToken = TokenGenerator.generateToken();
 
-      //save the new user in the db
-      const user = await this.prisma.user.create({
-        data: {
-          email: dto.email,
-          hash: hash,
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          gender: dto.gender,
-          address: dto.address,
-          birthday: dto.birthday.toString(),
-          height: dto.height,
-          weight: dto.weight,
-          role: dto.role,
-          university: null,
-        },
-      });
+    const validationToken = this.tokenGeneratorService.generateToken();
 
-      // Send mail with validation token
-      // await this.mailService.sendWithTemplate(user.email, MAIL_TEMPLATE_REGISTER, {
-      //   code: validationToken,
-      // });
+    //save the new user in the db
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        hash: hash,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        gender: dto.gender,
+        address: dto.address,
+        birthday: dto.birthday,
+        height: dto.height,
+        weight: dto.weight,
+        role: Role.USER,
+        universityId: null,
+        validated: false,
+        validation_token: validationToken,
+      },
+    });
 
-      //return saved users JWT
-      return this.signToken(user.id, user.email, user.role);
-    } catch (error) {
-      // catch error if Credentials are already taken and send a 403 Response
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('Credentials Taken');
-        }
-      }
+    // Send mail with validation token
+    await this.mailService.sendWithTemplate(user.email, MAIL_TEMPLATE_REGISTER, {
+      code: validationToken,
+    });
 
-      throw error;
-    }
+    //return saved users JWT
+    return this.signToken(user.id, user.email, user.role);
   }
 
   /**
