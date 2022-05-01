@@ -81,7 +81,17 @@ export class ProjectService {
    * @returns list of projects
    */
   async getProjectsOfUser(req: any): Promise<Project[]> {
-    return [];
+    const projects = await this.prisma.project.findMany({
+      where: {
+        users: {
+          every: {
+            userId: req.userId,
+          },
+        },
+      },
+    });
+
+    return projects;
   }
 
   /**
