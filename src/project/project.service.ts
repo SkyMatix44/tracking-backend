@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Project, Role, User, UsersOnProjects } from '@prisma/client';
+import { TrackingRequest } from '../auth/middleware/auth.middleware';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -14,7 +15,7 @@ export class ProjectService {
    * @param dto CreateProjectDto
    * @returns project
    */
-  async create(req: any, dto: CreateProjectDto): Promise<Project> {
+  async create(req: TrackingRequest, dto: CreateProjectDto): Promise<Project> {
     // Create project
     const project = await this.prisma.project.create({
       data: {
@@ -23,12 +24,14 @@ export class ProjectService {
     });
 
     // Add user as creator
-    const projectUser = await this.prisma.usersOnProjects.create({
-      data: {
-        userId: req.userId,
-        projectId: project.id,
-      },
-    });
+    if (req.userRole === Role.SCIENTIST) {
+      const projectUser = await this.prisma.usersOnProjects.create({
+        data: {
+          userId: req.userId,
+          projectId: project.id,
+        },
+      });
+    }
 
     return project;
   }
@@ -40,7 +43,7 @@ export class ProjectService {
    * @param dto UpdateProjectDto
    * @returns project
    */
-  async update(req: any, projectId: number, dto: UpdateProjectDto): Promise<Project> {
+  async update(req: TrackingRequest, projectId: number, dto: UpdateProjectDto): Promise<Project> {
     if (this.canEditProject(req.userId, projectId)) {
       const project = await this.prisma.project.update({
         data: {
@@ -62,7 +65,7 @@ export class ProjectService {
    * @param req Request Data
    * @param projectId Project-ID
    */
-  async delete(req: any, projectId: number): Promise<void> {
+  async delete(req: TrackingRequest, projectId: number): Promise<void> {
     if (this.canEditProject(req.userId, projectId)) {
       await this.prisma.project.delete({
         where: {
@@ -75,12 +78,20 @@ export class ProjectService {
   }
 
   /**
-   * TODO
-   * Returns a list of project witch the user can see
+   * Returns a list of all project
    * @param req Request Data
    * @returns list of projects
    */
-  async getProjectsOfUser(req: any): Promise<Project[]> {
+  async getAllProjects(req: TrackingRequest): Promise<Project[]> {
+    return this.prisma.project.findMany();
+  }
+
+  /**
+   * Returns a list of project where the user is assigned
+   * @param req Request Data
+   * @returns list of projects
+   */
+  async getProjectsOfUser(req: TrackingRequest): Promise<Project[]> {
     const projects = await this.prisma.project.findMany({
       where: {
         users: {
@@ -103,7 +114,7 @@ export class ProjectService {
    * @returns list of UsersOnProjects
    */
   async getProjectUsers(
-    req: any,
+    req: TrackingRequest,
     projectId: number,
     option: 'all' | 'participants' | 'scientists',
   ): Promise<UsersOnProjects[]> {
@@ -117,7 +128,7 @@ export class ProjectService {
    * @param projectId Project-ID
    * @returns list of users
    */
-  async getUserNotInProject(req: any, projectId: number): Promise<User[]> {
+  async getUserNotInProject(req: TrackingRequest, projectId: number): Promise<User[]> {
     return [];
   }
 
@@ -129,7 +140,7 @@ export class ProjectService {
    * @param userIds User-IDs witch are should add to the project
    * @returns new created UsersOnProjects
    */
-  async addUserToProject(req: any, projectId: number, userIds: number[]): Promise<UsersOnProjects[]> {
+  async addUserToProject(req: TrackingRequest, projectId: number, userIds: number[]): Promise<UsersOnProjects[]> {
     return [];
   }
 
