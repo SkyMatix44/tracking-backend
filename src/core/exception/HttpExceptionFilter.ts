@@ -1,5 +1,6 @@
 import {
   ArgumentsHost,
+  BadRequestException,
   Catch,
   ExceptionFilter,
   ForbiddenException,
@@ -31,10 +32,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const handleError: ErrorPayload = this.handleError(exception);
       const httpStatus = handleError ? handleError.status : HttpStatus.BAD_REQUEST;
       const message = handleError ? handleError.message : 'server error';
-
       Logger.error(
         `${handleError ? 'Handled Error' : 'Unhandled Error'} (Status: ${httpStatus}): ${message}\n${
-          exception ? exception.toString() : ''
+          exception != null
+            ? exception instanceof BadRequestException
+              ? exception.message + '\n' + exception.stack
+              : exception.toString()
+            : ''
         }`,
       );
 
