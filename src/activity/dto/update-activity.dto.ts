@@ -1,39 +1,39 @@
-import { IsDateString, IsOptional, IsNumber } from 'class-validator';
+import { IsOptional, IsNumber } from 'class-validator';
 
 export class UpdateActivityDto {
-  @IsDateString()
+  @IsNumber()
   @IsOptional()
-  start_date: string;
-
-  @IsDateString()
-  @IsOptional()
-  end_date: string;
+  start_date?: number;
 
   @IsNumber()
   @IsOptional()
-  hearthrate: number;
+  end_date?: number;
 
   @IsNumber()
   @IsOptional()
-  steps: number;
+  hearthrate?: number;
 
   @IsNumber()
   @IsOptional()
-  distance: number;
+  steps?: number;
 
   @IsNumber()
   @IsOptional()
-  bloodSugarOxygen: number;
+  distance?: number;
 
   @IsNumber()
   @IsOptional()
-  userId: number;
+  bloodSugarOxygen?: number;
 
   @IsNumber()
   @IsOptional()
-  activityTypeId: number;
+  userId?: number;
 
   @IsNumber()
   @IsOptional()
-  projectId: number;
+  activityTypeId?: number;
+
+  @IsNumber()
+  @IsOptional()
+  projectId?: number;
 }

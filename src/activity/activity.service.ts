@@ -1,3 +1,4 @@
+import { User } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateActivityDto, UpdateActivityDto } from './dto';
@@ -17,6 +18,11 @@ export class ActivityService {
       data: {
         ...dto,
       },
+      include: {
+        user: true,
+        activityType: true,
+        project: true,
+      },
     });
     return activity;
   }
@@ -35,6 +41,11 @@ export class ActivityService {
       },
       data: {
         ...dto,
+      },
+      include: {
+        user: true,
+        activityType: true,
+        project: true,
       },
     });
     return activity;

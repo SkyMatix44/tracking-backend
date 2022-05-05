@@ -1,13 +1,13 @@
-import { IsDateString, IsNumber, IsNotEmpty } from 'class-validator';
+import { IsNumber, IsNotEmpty } from 'class-validator';
 
 export class CreateActivityDto {
-  @IsDateString()
+  @IsNumber()
   @IsNotEmpty()
-  start_date: string;
+  start_date: number;
 
-  @IsDateString()
+  @IsNumber()
   @IsNotEmpty()
-  end_date: string;
+  end_date: number;
 
   @IsNumber()
   hearthrate: number;

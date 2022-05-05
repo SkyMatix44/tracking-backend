@@ -13,6 +13,7 @@ import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
 import { ActivityTypeModule } from './activityType/activityType.module';
 import { ActivityModule } from './activity/activity.module';
+import { NewsModule } from './news/news.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ActivityModule } from './activity/activity.module';
     UniversityModule,
     ActivityTypeModule,
     ActivityModule,
+    NewsModule,
   ],
   providers: [
     {
