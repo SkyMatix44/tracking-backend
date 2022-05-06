@@ -1,7 +1,6 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
-import { ActivityTypeModule } from './activityType/activityType.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthMiddleware } from './auth/middleware/auth.middleware';
 import { HttpExceptionFilter } from './core/exception/HttpExceptionFilter';
@@ -12,6 +11,9 @@ import { UniversityController } from './university/university.controller';
 import { UniversityModule } from './university/university.module';
 import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
+import { ActivityTypeModule } from './activityType/activityType.module';
+import { ActivityModule } from './activity/activity.module';
+import { NewsModule } from './news/news.module';
 
 @Module({
   imports: [
@@ -21,7 +23,8 @@ import { UserModule } from './user/user.module';
     PrismaModule,
     UniversityModule,
     ActivityTypeModule,
-    ProjectModule,
+    ActivityModule,
+    NewsModule,
   ],
   providers: [
     {

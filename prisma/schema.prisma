@@ -82,7 +82,7 @@ model Activity {
   bloodSugarOxygen Float?
 
   //Direct dependencies
-  userId         Int?
+  userId         Int
   user           User?        @relation(fields: [userId], references: [id])
   activityTypeId Int
   activityType   ActivityType @relation(fields: [activityTypeId], references: [id])

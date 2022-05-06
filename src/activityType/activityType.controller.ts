@@ -20,7 +20,7 @@ export class ActivityTypeController {
 
   @Roles(Role.SCIENTIST, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Patch()
+  @Patch(':id')
   updateActivityType(@Param('id', ParseIntPipe) activityTypeId: number, @Body() dto: CreateActivityTypeDto) {
     return this.activityTypeService.update(activityTypeId, dto);
   }
