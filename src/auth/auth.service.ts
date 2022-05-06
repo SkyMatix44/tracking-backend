@@ -66,7 +66,7 @@ export class AuthService {
    * @param dto
    * @returns Promise<{access_token : string}>
    */
-  async signin(dto: AuthDto) {
+  async signin(dto: AuthDto): Promise<{ access_token: string }> {
     // find the user by email
     const user = await this.prisma.user.findUnique({
       where: {

@@ -11,6 +11,7 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+  app.enableCors();
   const port: number = 3333;
   await app.listen(port);
   Logger.log(`Server start on port ${port}`);

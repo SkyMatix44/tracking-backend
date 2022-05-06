@@ -1,5 +1,6 @@
 import {
   ArgumentsHost,
+  BadRequestException,
   Catch,
   ExceptionFilter,
   ForbiddenException,
@@ -34,7 +35,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       Logger.error(
         `${handleError ? 'Handled Error' : 'Unhandled Error'} (Status: ${httpStatus}): ${message}\n${
-          exception ? exception.toString() : ''
+          exception != null
+            ? exception instanceof BadRequestException
+              ? exception.message + '\n' + exception.stack
+              : exception
+            : ''
         }`,
       );
 
