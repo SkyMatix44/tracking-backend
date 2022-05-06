@@ -7,7 +7,8 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Injectable()
 export class ProjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
+  // private readonly classTransfromerService: ClassTrans
 
   /**
    * Create a new project
@@ -106,7 +107,7 @@ export class ProjectService {
   }
 
   /**
-   * TODO
+   * TODO ReturnUserDto
    * Returns list of user witch are assigned to the project
    * @param req Request Data
    * @param projectId Project-ID
@@ -117,8 +118,50 @@ export class ProjectService {
     req: TrackingRequest,
     projectId: number,
     option: 'all' | 'participants' | 'scientists',
-  ): Promise<UsersOnProjects[]> {
-    return [];
+  ): Promise<User[]> {
+    let params;
+
+    switch (option) {
+      case 'all':
+        params = {
+          where: {
+            projects: {
+              every: {
+                projectId: projectId,
+              },
+            },
+          },
+        };
+        break;
+      case 'participants':
+        params = {
+          where: {
+            role: Role.USER,
+            projects: {
+              every: {
+                projectId: projectId,
+              },
+            },
+          },
+        };
+        break;
+      case 'scientists':
+        params = {
+          where: {
+            role: Role.SCIENTIST,
+            projects: {
+              every: {
+                projectId: projectId,
+              },
+            },
+          },
+        };
+        break;
+      default:
+        throw new Error('Invalid parameter');
+    }
+
+    return this.prisma.user.findMany(params);
   }
 
   /**
