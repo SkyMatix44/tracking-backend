@@ -74,11 +74,15 @@ export class AuthService {
       },
     });
     // if user does not exist throw exception
-    if (!user) throw new ForbiddenException('Credentials incorrect');
+    if (!user) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
     // compare password with hash
     const pwMatches = await argon.verify(user.hash, dto.password);
     // if password incorrect throw exception and send 403 Response
-    if (!pwMatches) throw new ForbiddenException('Credentials incorrect');
+    if (!pwMatches) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
     // send back the users JWT
     return this.signToken(user.id, user.email, user.role);
   }

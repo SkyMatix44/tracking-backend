@@ -69,6 +69,8 @@ export class ProjectService {
           id: projectId,
         },
       });
+
+      return;
     }
 
     throw new UnauthorizedException();
