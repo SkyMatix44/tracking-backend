@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { Project, Role } from '@prisma/client';
 import { Roles } from '../auth/decorator';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { TrackingRequest } from '../auth/middleware/auth.middleware';
@@ -14,7 +14,7 @@ export class ProjectController {
   @Roles(Role.ADMIN, Role.SCIENTIST)
   @UseGuards(RolesGuard)
   @Post()
-  createProject(@Request() req: TrackingRequest, @Body() dto: CreateProjectDto) {
+  createProject(@Request() req: TrackingRequest, @Body() dto: CreateProjectDto): Promise<Project> {
     return this.projectService.create(req, dto);
   }
 
@@ -24,13 +24,13 @@ export class ProjectController {
     @Request() req: TrackingRequest,
     @Param('id', ParseIntPipe) projectId: number,
     @Body() dto: UpdateProjectDto,
-  ) {
+  ): Promise<Project> {
     return this.projectService.update(req, projectId, dto);
   }
 
   @UseGuards(RolesGuard)
   @Delete(':id')
-  deleteProject(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) projectId: number) {
+  deleteProject(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) projectId: number): Promise<void> {
     return this.projectService.delete(req, projectId);
   }
 }

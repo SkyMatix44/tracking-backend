@@ -1,26 +1,27 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { TrackingRequest } from '../auth/middleware/auth.middleware';
-import { TokenGeneratorService } from '../common/token-generator/token-generator.service';
-import { PrismaService } from '../prisma/prisma.service';
 import * as argon from 'argon2';
-import { MailService } from '../common/mail/mail.service';
+import { TrackingRequest } from '../auth/middleware/auth.middleware';
 import { MAIL_TEMPLATE_CHANGE_PASSWORD } from '../common/mail/mail-tempates';
+import { MailService } from '../common/mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     private prisma: PrismaService,
-    private tokenGeneratorService: TokenGeneratorService,
+    // private tokenGeneratorService: TokenGeneratorService,
     private mailService: MailService,
   ) {}
 
   /**
    * Change the password of a user
-   * @param req
-   * @param data
+   * @param req Tracking-Request
+   * @param data chnage pw data
+   *
+   * TODO maybe invalid all other jwt tokens of the user
    */
-  async changePassword(req: TrackingRequest, data: any): Promise<void> {
-    // TODO dto anlegen
+  async changePassword(req: TrackingRequest, data: ChangePasswordDto): Promise<void> {
     const user = await this.prisma.user.findUnique({
       where: {
         id: req.userId,
@@ -44,7 +45,11 @@ export class UserService {
         });
 
         // Send Info-Email
-        await this.mailService.sendWithTemplate(user.email, MAIL_TEMPLATE_CHANGE_PASSWORD);
+        try {
+          await this.mailService.sendWithTemplate(user.email, MAIL_TEMPLATE_CHANGE_PASSWORD);
+        } catch (e) {
+          console.warn('Mail `MAIL_TEMPLATE_CHANGE_PASSWORD` could not be sent');
+        }
 
         return;
       }
