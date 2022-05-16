@@ -11,3 +11,9 @@ export const MAIL_TEMPLATE_CHANGE_PASSWORD: MailTemplate = {
   subject: 'Password wurde geändert',
   text: 'Ihr Passwort wurde geändert',
 };
+
+// Mail-Template after registration
+export const MAIL_TEMPLATE_CHANGE_EMAIL: MailTemplate = {
+  subject: 'Bitte bestätigen Sie die Email Adresse',
+  text: 'Bitte bestätigen Sie die Email Adresse mit folgenden Link: <confirmLink>',
+};

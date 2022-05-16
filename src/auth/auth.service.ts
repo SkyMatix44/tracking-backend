@@ -1,11 +1,12 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import * as argon from 'argon2';
 import { MAIL_TEMPLATE_REGISTER } from '../common/mail/mail-tempates';
 import { MailService } from '../common/mail/mail.service';
 import { TokenGeneratorService } from '../common/token-generator/token-generator.service';
+import { decodeBase64 } from '../common/utils';
 import { PrismaService } from './../prisma/prisma.service';
 import { AuthDto } from './dto';
 import { SignUpDto } from './dto/signUp.dto';
@@ -28,12 +29,12 @@ export class AuthService {
    */
   async signup(dto: SignUpDto): Promise<{ access_token: string }> {
     //generate the password
-    const hash = await argon.hash(dto.password);
+    const hash: string = await argon.hash(dto.password);
 
-    const validationToken = this.tokenGeneratorService.generateToken();
+    const validationToken: string = this.tokenGeneratorService.generateToken();
 
     //save the new user in the db
-    const user = await this.prisma.user.create({
+    const user: User = await this.prisma.user.create({
       data: {
         email: dto.email,
         hash: hash,
@@ -85,6 +86,36 @@ export class AuthService {
     }
     // send back the users JWT
     return this.signToken(user.id, user.email, user.role);
+  }
+
+  /**
+   * Confirm new email
+   * @param newEmail new email address
+   * @param newEmailToken Token to validate new email
+   */
+  async confirmNewEmail(bse64Email: string, bse64Token: string): Promise<void> {
+    if (bse64Email && bse64Token) {
+      const newEmail: string = decodeBase64(bse64Email);
+      const newEmailToken: string = decodeBase64(bse64Token);
+      const user: User = await this.prisma.user.findFirst({ where: { new_email: newEmail }, rejectOnNotFound: true });
+
+      if (user && this.tokenGeneratorService.verfiyToken(user.new_email_token, newEmailToken)) {
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            email: user.new_email,
+            new_email: null,
+            new_email_token: null,
+          },
+        });
+
+        // TODO invalidate jwt tokens of the user
+
+        return;
+      }
+    }
+
+    throw new UnauthorizedException();
   }
 
   /**
