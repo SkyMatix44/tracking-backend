@@ -24,7 +24,6 @@ model User {
   validation_token   String?
   new_email          String?
   new_email_token    String?
-  new_password       String?
   new_password_token String?
 
   firstName String
