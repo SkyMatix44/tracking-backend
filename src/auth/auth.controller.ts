@@ -1,6 +1,8 @@
 import { Body, Controller, Param, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SignUpDto } from './dto/signUp.dto';
 
 /**
@@ -27,5 +29,15 @@ export class AuthController {
   confirmNewEmail(@Param('email') email: string, @Param('token') token: string): Promise<void> {
     console.log('Test');
     return this.authService.confirmNewEmail(email, token);
+  }
+
+  @Post('password/reset')
+  resetPassword(@Body() dto: ResetPasswordDto): Promise<void> {
+    return this.authService.resetPassword(dto.email);
+  }
+
+  @Post('password/change')
+  changePassword(@Body() dto: ChangePasswordDto): Promise<void> {
+    return this.authService.changePassword(dto);
   }
 }

@@ -17,3 +17,9 @@ export const MAIL_TEMPLATE_CHANGE_EMAIL: MailTemplate = {
   subject: 'Bitte bestätigen Sie die Email Adresse',
   text: 'Bitte bestätigen Sie die Email Adresse mit folgenden Link: <confirmLink>',
 };
+
+// Mail-Template reset password
+export const MAIL_TEMPLATE_RESET_PASSWORD: MailTemplate = {
+  subject: 'Password zurücksetzen',
+  text: 'Bitte klicken Sie auf den Link um Ihr Passwort zurückzusetzen: <link>\noder geben Sie folgenden Code in der App ein: <code>',
+};

@@ -95,7 +95,6 @@ export class UserService {
     const bse64Email = encodeBase64(newEmail);
     const bse64Token = encodeBase64(token);
     const confirmLink = `${this.config.get('SYSTEM_URL')}auth/confirm/new-email/${bse64Email}/${bse64Token}`;
-    console.log(confirmLink);
 
     await this.mailService.sendWithTemplate(newEmail, MAIL_TEMPLATE_CHANGE_EMAIL, { confirmLink });
   }
