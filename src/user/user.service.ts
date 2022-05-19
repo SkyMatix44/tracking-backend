@@ -91,7 +91,7 @@ export class UserService {
         new_email_token: token,
       },
     });
-    // const bse64 = encodeBase64(newEmail) + '#' + encodeBase64(token);
+
     const bse64Email = encodeBase64(newEmail);
     const bse64Token = encodeBase64(token);
     const confirmLink = `${this.config.get('SYSTEM_URL')}auth/confirm/new-email/${bse64Email}/${bse64Token}`;

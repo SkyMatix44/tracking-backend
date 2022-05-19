@@ -33,13 +33,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const httpStatus = handleError ? handleError.status : HttpStatus.BAD_REQUEST;
       const message = handleError ? handleError.message : 'server error';
 
+      let stack: string = '';
+      if (exception && exception instanceof BadRequestException) {
+        stack += exception.message + '\n' + exception.stack + '\n';
+
+        const response = exception['response'] || null;
+        if (response?.message) {
+          stack += response.message?.length ? (response.message as string[]).join('\n') : response.message;
+        }
+      }
+
       Logger.error(
         `${handleError ? 'Handled Error' : 'Unhandled Error'} (Status: ${httpStatus}): ${message}\n${
-          exception != null
-            ? exception instanceof BadRequestException
-              ? exception.message + '\n' + exception.stack
-              : exception
-            : ''
+          stack != '' ? stack : exception
         }`,
       );
 
