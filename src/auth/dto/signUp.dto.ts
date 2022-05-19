@@ -1,5 +1,5 @@
-import { Gender } from '@prisma/client';
-import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Gender, Role } from '@prisma/client';
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class SignUpDto {
   @IsEmail()
@@ -18,18 +18,30 @@ export class SignUpDto {
   @IsNotEmpty()
   lastName: string;
 
+  @IsEnum(Role)
+  role: Role; // only SCIENTIST or USER
+
   @IsEnum(Gender)
-  gender: Gender;
+  @IsOptional()
+  gender?: Gender;
 
   @IsString()
-  address: string;
+  @IsOptional()
+  address?: string;
 
   @IsNumber()
-  birthday: number;
+  @IsOptional()
+  birthday?: number;
 
   @IsNumber()
-  height: number;
+  @IsOptional()
+  height?: number;
 
   @IsNumber()
-  weight: number;
+  @IsOptional()
+  weight?: number;
+
+  @IsNumber()
+  @IsOptional()
+  universityId?: number;
 }
