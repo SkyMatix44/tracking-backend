@@ -3,6 +3,7 @@ import { Project, Role, User } from '@prisma/client';
 import { Roles } from '../auth/decorator';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { TrackingRequest } from '../auth/middleware/auth.middleware';
+import { AddUsersToProjectDto } from './dto/add-users-to-project.dto';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectService } from './project.service';
@@ -51,5 +52,14 @@ export class ProjectController {
     @Param('option') option: 'all' | 'participants' | 'scientists',
   ): Promise<User[]> {
     return this.projectService.getProjectUsers(req, projectId, option);
+  }
+
+  @Put(':id/users/add')
+  addUserToProject(
+    @Request() req: TrackingRequest,
+    @Param('id', ParseIntPipe) projectId: number,
+    @Body() dto: AddUsersToProjectDto,
+  ): Promise<User[]> {
+    return this.projectService.addUserToProject(req, projectId, dto.userIds);
   }
 }

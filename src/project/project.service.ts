@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Project, Role, User, UsersOnProjects } from '@prisma/client';
+import { Project, Role, User } from '@prisma/client';
 import { TrackingRequest } from '../auth/middleware/auth.middleware';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -176,15 +176,26 @@ export class ProjectService {
   }
 
   /**
-   * TODO
    * Add users to a Project
    * @param req Request Data
    * @param projectId Project-ID
    * @param userIds User-IDs witch are should add to the project
    * @returns new created UsersOnProjects
    */
-  async addUserToProject(req: TrackingRequest, projectId: number, userIds: number[]): Promise<UsersOnProjects[]> {
-    return [];
+  async addUserToProject(req: TrackingRequest, projectId: number, userIds: number[]): Promise<User[]> {
+    if (this.canEditProject(req.userId, projectId)) {
+      const data: { projectId: number; userId: number }[] = userIds.map((userId) => {
+        return { userId, projectId };
+      });
+      const projectUser = await this.prisma.usersOnProjects.createMany({
+        data: data,
+        skipDuplicates: true,
+      });
+
+      return this.prisma.user.findMany({ where: { id: { in: userIds } } });
+    }
+
+    throw new UnauthorizedException();
   }
 
   /**
