@@ -114,7 +114,6 @@ export class ProjectService {
   }
 
   /**
-   * TODO
    * Add users to a Project
    * @param req Request Data
    * @param projectId Project-ID
@@ -122,7 +121,21 @@ export class ProjectService {
    * @returns new created UsersOnProjects
    */
   async addUserToProject(req: any, projectId: number, userIds: number[]): Promise<UsersOnProjects[]> {
-    return [];
+    if (this.canEditProject(req.userId, projectId)) {
+      const data: { userId: number; projectId: number }[] = [];
+      for (const userId of userIds) {
+        data.push({ userId, projectId });
+      }
+
+      await this.prisma.usersOnProjects.createMany({
+        data,
+        skipDuplicates: true,
+      });
+
+      return this.getProjectUsers(req, projectId, 'all');
+    }
+
+    throw new UnauthorizedException();
   }
 
   /**
