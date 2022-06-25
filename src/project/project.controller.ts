@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
-import { Project, Role } from '@prisma/client';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Project, Role, User } from '@prisma/client';
 import { Roles } from '../auth/decorator';
 import { RolesGuard } from '../auth/guard/roles.guard';
 import { TrackingRequest } from '../auth/middleware/auth.middleware';
@@ -18,7 +18,7 @@ export class ProjectController {
     return this.projectService.create(req, dto);
   }
 
-  @UseGuards(RolesGuard)
+  // @UseGuards(RolesGuard)
   @Put(':id')
   updateProject(
     @Request() req: TrackingRequest,
@@ -28,9 +28,28 @@ export class ProjectController {
     return this.projectService.update(req, projectId, dto);
   }
 
-  @UseGuards(RolesGuard)
+  // @UseGuards(RolesGuard)
   @Delete(':id')
   deleteProject(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) projectId: number): Promise<void> {
     return this.projectService.delete(req, projectId);
+  }
+
+  @Get('all')
+  getProjectsOfUser(@Request() req: TrackingRequest): Promise<Project[]> {
+    return this.projectService.getProjectsOfUser(req);
+  }
+
+  @Get(':id/users/:option')
+  getProjectUsers(
+    @Request() req: TrackingRequest,
+    @Param('id', ParseIntPipe) projectId: number,
+    @Param('option') option: string,
+  ): Promise<User[]> {
+    return this.projectService.getProjectUsers(req, projectId, option as any);
+  }
+
+  @Get(':id/other-users')
+  getUserNotInProject(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) projectId: number): Promise<User[]> {
+    return this.projectService.getUserNotInProject(req, projectId);
   }
 }

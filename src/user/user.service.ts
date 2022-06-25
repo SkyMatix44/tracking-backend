@@ -70,7 +70,7 @@ export class UserService {
    * @param data new email data
    */
   async changeEmail(req: TrackingRequest, data: ChangeEmailDto): Promise<void> {
-    const token = this.tokenGeneratorService.generateToken();
+    const token = this.tokenGeneratorService.generateToken(2, 3);
     const newEmail = data.newEmail.toLowerCase().trim();
 
     // check already exist a user with this email

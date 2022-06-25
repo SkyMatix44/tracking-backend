@@ -31,7 +31,7 @@ export class AuthService {
     //generate the password
     const hash: string = await argon.hash(dto.password);
 
-    const validationToken: string = this.tokenGeneratorService.generateToken();
+    const validationToken: string = this.tokenGeneratorService.generateToken(2, 3);
 
     //save the new user in the db
     const user: User = await this.prisma.user.create({

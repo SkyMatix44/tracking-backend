@@ -41,7 +41,7 @@ export class ProjectService {
    * @returns project
    */
   async update(req: any, projectId: number, dto: UpdateProjectDto): Promise<Project> {
-    if (this.canEditProject(req.userId, projectId)) {
+    if (await this.canEditProject(req.userId, projectId)) {
       const project = await this.prisma.project.update({
         data: {
           ...dto,
@@ -63,7 +63,7 @@ export class ProjectService {
    * @param projectId Project-ID
    */
   async delete(req: any, projectId: number): Promise<void> {
-    if (this.canEditProject(req.userId, projectId)) {
+    if (await this.canEditProject(req.userId, projectId)) {
       await this.prisma.project.delete({
         where: {
           id: projectId,
@@ -77,40 +77,67 @@ export class ProjectService {
   }
 
   /**
-   * TODO
    * Returns a list of project witch the user can see
    * @param req Request Data
    * @returns list of projects
    */
   async getProjectsOfUser(req: any): Promise<Project[]> {
-    return [];
+    const userOnProjects: UsersOnProjects[] = await this.prisma.usersOnProjects.findMany({
+      where: { userId: req.userId },
+    });
+    const projectIds: number[] = userOnProjects.map((v) => v.projectId);
+    const projectsOfUser: Project[] = await this.prisma.project.findMany({ where: { id: { in: projectIds } } });
+    return projectsOfUser;
   }
 
   /**
-   * TODO
    * Returns list of user witch are assigned to the project
    * @param req Request Data
    * @param projectId Project-ID
    * @param option Restricts users by role
    * @returns list of UsersOnProjects
    */
-  async getProjectUsers(
-    req: any,
-    projectId: number,
-    option: 'all' | 'participants' | 'scientists',
-  ): Promise<UsersOnProjects[]> {
-    return [];
+  async getProjectUsers(req: any, projectId: number, option: 'all' | 'participants' | 'scientists'): Promise<User[]> {
+    if (await this.canEditProject(req.userId, projectId)) {
+      const projectUser: UsersOnProjects[] = await this.prisma.usersOnProjects.findMany({
+        where: { projectId: projectId },
+      });
+      const userIds: number[] = projectUser.map((pu) => pu.userId);
+      let params: any = { where: { id: { in: userIds } } };
+
+      if (option === 'participants' || option === 'scientists') {
+        params.where = { ...params.where, role: option === 'participants' ? Role.USER : Role.SCIENTIST };
+      }
+
+      const users: User[] = await this.prisma.user.findMany(params);
+
+      // TODO User aufbereiten
+      return users;
+    }
+
+    throw new UnauthorizedException();
   }
 
   /**
-   * TODO
    * Returns a list of user witch are not assigned to the project
    * @param req Request Data
    * @param projectId Project-ID
    * @returns list of users
    */
   async getUserNotInProject(req: any, projectId: number): Promise<User[]> {
-    return [];
+    if (await this.canEditProject(req.userId, projectId)) {
+      const projectUser: UsersOnProjects[] = await this.prisma.usersOnProjects.findMany({
+        where: { projectId: projectId },
+      });
+      const userIds: number[] = projectUser.map((pu) => pu.userId);
+
+      const usersNotInProject: User[] = await this.prisma.user.findMany({ where: { NOT: { id: { in: userIds } } } });
+
+      // TODO User aufbereiten
+      return usersNotInProject;
+    }
+
+    throw new UnauthorizedException();
   }
 
   /**
@@ -120,8 +147,8 @@ export class ProjectService {
    * @param userIds User-IDs witch are should add to the project
    * @returns new created UsersOnProjects
    */
-  async addUserToProject(req: any, projectId: number, userIds: number[]): Promise<UsersOnProjects[]> {
-    if (this.canEditProject(req.userId, projectId)) {
+  async addUserToProject(req: any, projectId: number, userIds: number[]): Promise<User[]> {
+    if (await this.canEditProject(req.userId, projectId)) {
       const data: { userId: number; projectId: number }[] = [];
       for (const userId of userIds) {
         data.push({ userId, projectId });
