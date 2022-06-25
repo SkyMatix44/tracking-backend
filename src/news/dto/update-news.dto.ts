@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateNewsDto {
   @IsString()
@@ -8,8 +8,4 @@ export class UpdateNewsDto {
   @IsString()
   @IsOptional()
   text?: string;
-
-  @IsNumber()
-  @IsOptional()
-  userId?: number;
 }

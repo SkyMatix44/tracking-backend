@@ -7,27 +7,27 @@ export class NewsController {
   constructor(private newsService: NewsService) {}
 
   @Post()
-  createActivity(@Body() dto: CreateNewsDto) {
+  createNews(@Body() dto: CreateNewsDto) {
     return this.newsService.create(dto);
   }
 
   @Patch(':id')
-  updateActivity(@Param('id', ParseIntPipe) newsId: number, @Body() dto: UpdateNewsDto) {
+  updateNews(@Param('id', ParseIntPipe) newsId: number, @Body() dto: UpdateNewsDto) {
     return this.newsService.update(newsId, dto);
   }
 
   @Delete(':id')
-  deleteActivity(@Param('id', ParseIntPipe) newsId: number) {
+  deleteNews(@Param('id', ParseIntPipe) newsId: number) {
     return this.newsService.delete(newsId);
   }
 
   @Get(':id')
-  getActivity(@Param('id', ParseIntPipe) newsId: number) {
+  getNews(@Param('id', ParseIntPipe) newsId: number) {
     return this.newsService.get(newsId);
   }
 
-  @Get()
-  getAllActivity() {
-    return this.newsService.getAll();
+  @Get('project/:id')
+  getProjectNews(@Param('id', ParseIntPipe) projectId: number) {
+    return this.newsService.getProjectNews(projectId);
   }
 }

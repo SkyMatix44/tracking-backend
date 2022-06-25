@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateNewsDto, UpdateNewsDto } from './dto';
+import { News } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateNewsDto, UpdateNewsDto } from './dto';
 
 @Injectable()
 export class NewsService {
@@ -12,7 +13,7 @@ export class NewsService {
    * @param dto
    * @returns news News
    */
-  async create(dto: CreateNewsDto) {
+  async create(dto: CreateNewsDto): Promise<News> {
     const news = await this.prisma.news.create({
       data: {
         ...dto,
@@ -22,13 +23,13 @@ export class NewsService {
   }
 
   /**
-   * Update a Acitivity-Entry
+   * Update a News-Entry
    *
    * @param newsId
    * @param dto
    * @returns news News
    */
-  async update(newsId: number, dto: UpdateNewsDto) {
+  async update(newsId: number, dto: UpdateNewsDto): Promise<News> {
     const news = await this.prisma.news.update({
       where: {
         id: newsId,
@@ -43,12 +44,12 @@ export class NewsService {
   /**
    * Delets a news-Entry
    *
-   * @param acitivityId
+   * @param newsId
    */
-  async delete(acitivityId: number) {
+  async delete(newsId: number): Promise<void> {
     await this.prisma.news.delete({
       where: {
-        id: acitivityId,
+        id: newsId,
       },
     });
   }
@@ -58,7 +59,7 @@ export class NewsService {
    *
    * @param newsId
    */
-  async get(newsId: number) {
+  async get(newsId: number): Promise<News> {
     return this.prisma.news.findFirst({
       where: {
         id: newsId,
@@ -67,11 +68,13 @@ export class NewsService {
   }
 
   /**
-   * Get All News
-   *
-   * @returns PrismaPromise<...>
+   * Get All News of a project
    */
-  async getAll() {
-    return this.prisma.news.findMany();
+  async getProjectNews(projectId: number): Promise<News[]> {
+    return this.prisma.news.findMany({
+      where: {
+        projectId,
+      },
+    });
   }
 }

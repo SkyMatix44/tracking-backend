@@ -59,6 +59,7 @@ model Project {
   //Indirect dependencies
   activities Activity[]
   users      UsersOnProjects[] // n to m relation
+  News       News[]
 }
 
 // Define the `UsersOnProjects` table in the database
@@ -122,8 +123,10 @@ model News {
   text  String @db.Text
 
   //Direct dependencies
-  userId Int?
-  user   User? @relation(fields: [userId], references: [id])
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  projectId Int
+  project   Project? @relation(fields: [projectId], references: [id])
 }
 
 // Enum to define the User-Role
