@@ -11,9 +11,5 @@ export class CreateNewsDto {
 
   @IsNumber()
   @IsNotEmpty()
-  userId: number;
-
-  @IsNumber()
-  @IsNotEmpty()
   projectId: number;
 }

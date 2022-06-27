@@ -1,19 +1,21 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
+import { ActivityController } from './activity/activity.controller';
+import { ActivityModule } from './activity/activity.module';
+import { ActivityTypeController } from './activityType/activityType.controller';
+import { ActivityTypeModule } from './activityType/activityType.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthMiddleware } from './auth/middleware/auth.middleware';
 import { HttpExceptionFilter } from './core/exception/HttpExceptionFilter';
+import { NewsController } from './news/news.controller';
+import { NewsModule } from './news/news.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProjectController } from './project/project.controller';
-import { ProjectModule } from './project/project.module';
 import { UniversityController } from './university/university.controller';
 import { UniversityModule } from './university/university.module';
 import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
-import { ActivityTypeModule } from './activityType/activityType.module';
-import { ActivityModule } from './activity/activity.module';
-import { NewsModule } from './news/news.module';
 
 @Module({
   imports: [
@@ -39,6 +41,15 @@ export class AppModule {
    * @see https://docs.nestjs.com/middleware#middleware-consumer
    */
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes(UserController, UniversityController, ProjectController);
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes(
+        UserController,
+        UniversityController,
+        ProjectController,
+        NewsController,
+        ActivityController,
+        ActivityTypeController,
+      );
   }
 }

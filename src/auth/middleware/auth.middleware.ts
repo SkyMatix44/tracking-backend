@@ -1,6 +1,8 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Request, Response } from 'express';
+import { ExtractJwt } from 'passport-jwt';
+import { AuthService } from '../auth.service';
 
 /**
  * Interface for all In-App-Requests
@@ -20,19 +22,18 @@ export interface TrackingRequest extends Request {
  */
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  /** Key of the JWT-Token in http header */
-  static readonly TOKEN_KEY = 'JWT'; // TODO
+  constructor(private authService: AuthService) {}
 
   /**
    * Prepares request and verify token
    */
   use(req: TrackingRequest, res: Response, next: () => void): void {
-    const jwtToken: string = req.get(AuthMiddleware.TOKEN_KEY);
-    // console.log(req);
-    // const tokenData = service.verify(); TODO verify Token
-    req.jwtToken = '123-456'; // TODO tokenData.token;
-    req.userId = 1; // TODO tokenData.userId;
-    req.userRole = Role.ADMIN; // TODO
+    const extractJwtFunc = ExtractJwt.fromAuthHeaderAsBearerToken();
+    const jwtToken: string = extractJwtFunc(req);
+    const data = this.authService.verifyToken(jwtToken);
+    req.jwtToken = jwtToken;
+    req.userId = data.sub;
+    req.userRole = Role[data.role];
 
     next();
   }

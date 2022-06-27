@@ -24,11 +24,10 @@ export class ActivityService {
       const activity = await this.prisma.activity.create({
         data: {
           ...dto,
+          userId: req.userId,
         },
         include: {
-          user: true,
           activityType: true,
-          project: true,
         },
       });
       return activity;
@@ -45,7 +44,7 @@ export class ActivityService {
    * @returns activity Activity
    */
   async update(req: TrackingRequest, activityId: number, dto: UpdateActivityDto): Promise<Activity> {
-    if (this.canEditActivity(activityId, req.userId, req.userRole)) {
+    if (await this.canEditActivity(activityId, req.userId, req.userRole)) {
       const activity = await this.prisma.activity.update({
         where: {
           id: activityId,
@@ -54,9 +53,7 @@ export class ActivityService {
           ...dto,
         },
         include: {
-          user: true,
           activityType: true,
-          project: true,
         },
       });
       return activity;
@@ -71,7 +68,7 @@ export class ActivityService {
    * @param acitivityId
    */
   async delete(req: TrackingRequest, activityId: number): Promise<void> {
-    if (this.canEditActivity(activityId, req.userId, req.userRole)) {
+    if (await this.canEditActivity(activityId, req.userId, req.userRole)) {
       await this.prisma.activity.delete({
         where: {
           id: activityId,

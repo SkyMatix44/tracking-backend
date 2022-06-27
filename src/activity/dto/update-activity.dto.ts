@@ -1,4 +1,4 @@
-import { IsOptional, IsNumber } from 'class-validator';
+import { IsNumber, IsOptional } from 'class-validator';
 
 export class UpdateActivityDto {
   @IsNumber()
@@ -27,13 +27,5 @@ export class UpdateActivityDto {
 
   @IsNumber()
   @IsOptional()
-  userId?: number;
-
-  @IsNumber()
-  @IsOptional()
   activityTypeId?: number;
-
-  @IsNumber()
-  @IsOptional()
-  projectId?: number;
 }

@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Request } from '@nestjs/common';
+import { TrackingRequest } from '../auth/middleware/auth.middleware';
 import { CreateNewsDto, UpdateNewsDto } from './dto';
 import { NewsService } from './news.service';
 
@@ -7,27 +8,27 @@ export class NewsController {
   constructor(private newsService: NewsService) {}
 
   @Post()
-  createNews(@Body() dto: CreateNewsDto) {
-    return this.newsService.create(dto);
+  createNews(@Request() req: TrackingRequest, @Body() dto: CreateNewsDto) {
+    return this.newsService.create(req, dto);
   }
 
   @Patch(':id')
-  updateNews(@Param('id', ParseIntPipe) newsId: number, @Body() dto: UpdateNewsDto) {
-    return this.newsService.update(newsId, dto);
+  updateNews(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) newsId: number, @Body() dto: UpdateNewsDto) {
+    return this.newsService.update(req, newsId, dto);
   }
 
   @Delete(':id')
-  deleteNews(@Param('id', ParseIntPipe) newsId: number) {
-    return this.newsService.delete(newsId);
+  deleteNews(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) newsId: number) {
+    return this.newsService.delete(req, newsId);
   }
 
   @Get(':id')
-  getNews(@Param('id', ParseIntPipe) newsId: number) {
-    return this.newsService.get(newsId);
+  getNews(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) newsId: number) {
+    return this.newsService.get(req, newsId);
   }
 
   @Get('project/:id')
-  getProjectNews(@Param('id', ParseIntPipe) projectId: number) {
-    return this.newsService.getProjectNews(projectId);
+  getProjectNews(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) projectId: number) {
+    return this.newsService.getProjectNews(req, projectId);
   }
 }

@@ -163,13 +163,20 @@ export class AuthService {
   }
 
   /**
+   * Verify a jwt token
+   */
+  verifyToken(token: string) {
+    return this.jwt.verify(token, { secret: this.jwtSecret });
+  }
+
+  /**
    * Helper Function to create JWT-Token
    */
   private async signToken(user: User): Promise<SignInResult> {
     const payload = {
       sub: user.id,
       email: user.email,
-      role: user.role, // TODO Rolle hier wirklich aufnehmen, was ist wenn sich diese ändert?
+      role: user.role,
     };
 
     //create the JWT-Token

@@ -1,4 +1,4 @@
-import { IsNumber, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateActivityDto {
   @IsNumber()
@@ -20,10 +20,6 @@ export class CreateActivityDto {
 
   @IsNumber()
   bloodSugarOxygen: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  userId: number;
 
   @IsNumber()
   @IsNotEmpty()

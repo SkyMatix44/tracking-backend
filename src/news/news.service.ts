@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { News } from '@prisma/client';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { News, Role, UsersOnProjects } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { TrackingRequest } from '../auth/middleware/auth.middleware';
 import { CreateNewsDto, UpdateNewsDto } from './dto';
 
 @Injectable()
@@ -13,13 +14,18 @@ export class NewsService {
    * @param dto
    * @returns news News
    */
-  async create(dto: CreateNewsDto): Promise<News> {
-    const news = await this.prisma.news.create({
-      data: {
-        ...dto,
-      },
-    });
-    return news;
+  async create(req: TrackingRequest, dto: CreateNewsDto): Promise<News> {
+    if (await this.canEditNews(req.userId, dto.projectId, req.userRole)) {
+      const news: News = await this.prisma.news.create({
+        data: {
+          ...dto,
+          userId: req.userId,
+        },
+      });
+      return news;
+    }
+
+    throw new UnauthorizedException();
   }
 
   /**
@@ -29,16 +35,21 @@ export class NewsService {
    * @param dto
    * @returns news News
    */
-  async update(newsId: number, dto: UpdateNewsDto): Promise<News> {
-    const news = await this.prisma.news.update({
-      where: {
-        id: newsId,
-      },
-      data: {
-        ...dto,
-      },
-    });
-    return news;
+  async update(req: TrackingRequest, newsId: number, dto: UpdateNewsDto): Promise<News> {
+    const news: News = await this.prisma.news.findUnique({ where: { id: newsId }, rejectOnNotFound: true });
+
+    if (await this.canEditNews(req.userId, news.projectId, req.userRole)) {
+      return this.prisma.news.update({
+        where: {
+          id: newsId,
+        },
+        data: {
+          ...dto,
+        },
+      });
+    }
+
+    throw new UnauthorizedException();
   }
 
   /**
@@ -46,12 +57,18 @@ export class NewsService {
    *
    * @param newsId
    */
-  async delete(newsId: number): Promise<void> {
-    await this.prisma.news.delete({
-      where: {
-        id: newsId,
-      },
-    });
+  async delete(req: TrackingRequest, newsId: number): Promise<void> {
+    const news: News = await this.prisma.news.findUnique({ where: { id: newsId }, rejectOnNotFound: true });
+
+    if (await this.canEditNews(req.userId, news.projectId, req.userRole)) {
+      await this.prisma.news.delete({
+        where: {
+          id: newsId,
+        },
+      });
+    }
+
+    throw new UnauthorizedException();
   }
 
   /**
@@ -59,22 +76,66 @@ export class NewsService {
    *
    * @param newsId
    */
-  async get(newsId: number): Promise<News> {
-    return this.prisma.news.findFirst({
+  async get(req: TrackingRequest, newsId: number): Promise<News> {
+    const news: News = await this.prisma.news.findUnique({
       where: {
         id: newsId,
       },
     });
+
+    if (await this.canSeeNews(req.userId, news.projectId, req.userRole)) {
+      return news;
+    }
+
+    throw new UnauthorizedException();
   }
 
   /**
    * Get All News of a project
    */
-  async getProjectNews(projectId: number): Promise<News[]> {
-    return this.prisma.news.findMany({
-      where: {
-        projectId,
-      },
+  async getProjectNews(req: TrackingRequest, projectId: number): Promise<News[]> {
+    if (await this.canSeeNews(req.userId, projectId, req.userRole)) {
+      return this.prisma.news.findMany({
+        where: {
+          projectId,
+        },
+      });
+    }
+
+    throw new UnauthorizedException();
+  }
+
+  private async canEditNews(userId: number, projectId: number, role: Role): Promise<boolean> {
+    if (role === Role.ADMIN) {
+      return true;
+    }
+
+    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findUnique({
+      where: { userId: userId, projectId: projectId },
+      rejectOnNotFound: false,
     });
+
+    if (role === Role.SCIENTIST && projectUser != null) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private async canSeeNews(userId: number, projectId: number, role: Role): Promise<boolean> {
+    if (role === Role.ADMIN) {
+      return true;
+    }
+
+    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findUnique({
+      where: { userId: userId, projectId: projectId },
+      rejectOnNotFound: false,
+    });
+
+    if (projectUser != null) {
+      return true;
+    }
+
+    return false;
   }
 }
