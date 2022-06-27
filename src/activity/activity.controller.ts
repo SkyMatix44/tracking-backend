@@ -1,33 +1,46 @@
-import { CreateActivityDto, UpdateActivityDto } from './dto/index';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import { Activity, Role } from '@prisma/client';
+import { Roles } from '../auth/decorator';
+import { RolesGuard } from '../auth/guard/roles.guard';
+import { TrackingRequest } from '../auth/middleware/auth.middleware';
 import { ActivityService } from './activity.service';
-import { Body, Controller, Param, Patch, Post, ParseIntPipe, Delete, Get } from '@nestjs/common';
+import { CreateActivityDto, UpdateActivityDto } from './dto/index';
 
 @Controller('activity')
 export class ActivityController {
   constructor(private activityService: ActivityService) {}
 
+  @Roles(Role.USER)
+  @UseGuards(RolesGuard)
   @Post()
-  createActivity(@Body() dto: CreateActivityDto) {
-    return this.activityService.create(dto);
+  createActivity(@Request() req: TrackingRequest, @Body() dto: CreateActivityDto): Promise<Activity> {
+    return this.activityService.create(req, dto);
   }
 
   @Patch(':id')
-  updateActivity(@Param('id', ParseIntPipe) activityId: number, @Body() dto: UpdateActivityDto) {
-    return this.activityService.update(activityId, dto);
+  updateActivity(
+    @Request() req: TrackingRequest,
+    @Param('id', ParseIntPipe) activityId: number,
+    @Body() dto: UpdateActivityDto,
+  ): Promise<Activity> {
+    return this.activityService.update(req, activityId, dto);
   }
 
   @Delete(':id')
-  deleteActivity(@Param('id', ParseIntPipe) activityId: number) {
-    return this.activityService.delete(activityId);
+  deleteActivity(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) activityId: number): Promise<void> {
+    return this.activityService.delete(req, activityId);
   }
 
   @Get(':id')
-  getActivity(@Param('id', ParseIntPipe) activityId: number) {
-    return this.activityService.get(activityId);
+  getActivity(@Request() req: TrackingRequest, @Param('id', ParseIntPipe) activityId: number): Promise<Activity> {
+    return this.activityService.get(req, activityId);
   }
 
-  @Get()
-  getAllActivity() {
-    return this.activityService.getAll();
+  @Get('project/:id')
+  getProjectActivities(
+    @Request() req: TrackingRequest,
+    @Param('id', ParseIntPipe) projectId: number,
+  ): Promise<Activity[]> {
+    return this.activityService.getProjectActivities(req, projectId);
   }
 }

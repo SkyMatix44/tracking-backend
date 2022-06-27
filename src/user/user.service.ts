@@ -10,6 +10,9 @@ import { encodeBase64 } from '../common/utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChangeEmailDto } from './dto/change-email.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserAdminDto } from './dto/update-user-admin.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -98,5 +101,71 @@ export class UserService {
     console.log(confirmLink);
 
     await this.mailService.sendWithTemplate(newEmail, MAIL_TEMPLATE_CHANGE_EMAIL, { confirmLink });
+  }
+
+  /**
+   * (Un)block a user
+   *
+   * @param req Tracking-Request
+   * @param userId user id to block
+   * @param block block status
+   */
+  async blockUser(req: TrackingRequest, userId: number, blocked: boolean): Promise<void> {
+    const user: User = await this.prisma.user.update({
+      data: {
+        blocked: blocked,
+      },
+      where: {
+        id: userId,
+      },
+    });
+  }
+
+  /**
+   * Returns all users
+   *
+   * TODO User aufbereiten
+   */
+  async getAllUser(req: TrackingRequest): Promise<User[]> {
+    return this.prisma.user.findMany({ orderBy: [{ lastName: 'desc' }, { firstName: 'desc' }] });
+  }
+
+  /**
+   * Update a user
+   *
+   * @param req Tracking-Request
+   * @param data update data
+   */
+  async update(req: TrackingRequest, userId: number, data: UpdateUserDto | UpdateUserAdminDto): Promise<User> {
+    return this.prisma.user.update({ where: { id: userId }, data: { ...data } });
+  }
+
+  /**
+   * Create a user
+   *
+   * @param req Tracking-Request
+   * @param data user data
+   */
+  async createUser(req: TrackingRequest, data: CreateUserDto): Promise<User> {
+    const hash: string = await argon.hash(data.password);
+
+    const userData = {
+      validated: true,
+      hash,
+      gender: data.gender,
+      address: data.address,
+      birthday: data.birthday,
+      height: data.height,
+      weight: data.weight,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: data.role,
+      email: data.email,
+      universityId: data.universityId,
+    };
+
+    return this.prisma.user.create({
+      data: { ...userData },
+    });
   }
 }
