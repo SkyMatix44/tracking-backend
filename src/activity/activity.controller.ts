@@ -43,4 +43,13 @@ export class ActivityController {
   ): Promise<Activity[]> {
     return this.activityService.getProjectActivities(req, projectId);
   }
+
+  @Get('project/:projectid/user/:userid')
+  getProjectUserActivities(
+    @Request() req: TrackingRequest,
+    @Param('projectid', ParseIntPipe) projectId: number,
+    @Param('userid', ParseIntPipe) userId: number,
+  ): Promise<Activity[]> {
+    return this.activityService.getProjectUserActivities(req, projectId, userId);
+  }
 }

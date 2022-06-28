@@ -123,6 +123,36 @@ export class ActivityService {
   }
 
   /**
+   * Return all activities of a user on a project
+   * @param req
+   * @param projectId
+   */
+  async getProjectUserActivities(req: TrackingRequest, projectId: number, userId: number): Promise<Activity[]> {
+    let projectUser: UsersOnProjects = null;
+    if (req.userRole != Role.ADMIN) {
+      projectUser = await this.prisma.usersOnProjects.findUnique({
+        where: { userId: req.userId, projectId },
+        rejectOnNotFound: false,
+      });
+    }
+
+    if (
+      req.userRole === Role.ADMIN ||
+      (null != projectUser && req.userRole === Role.SCIENTIST) ||
+      (req.userRole === Role.USER && userId === req.userId && null != projectUser)
+    ) {
+      return this.prisma.activity.findMany({
+        where: {
+          projectId: projectId,
+          userId: userId,
+        },
+      });
+    }
+
+    throw new UnauthorizedException();
+  }
+
+  /**
    * Returns if a user can edit an acitivity
    */
   private async canEditActivity(acitivityId: number, userId: number, userRole: Role): Promise<boolean> {
