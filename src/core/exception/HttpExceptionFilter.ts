@@ -39,7 +39,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
         const response = exception['response'] || null;
         if (response?.message) {
-          stack += response.message?.length ? (response.message as string[]).join('\n') : response.message;
+          stack += typeof response.message === 'string' ? response.message : (response.message as string[]).join('\n');
         }
       }
 

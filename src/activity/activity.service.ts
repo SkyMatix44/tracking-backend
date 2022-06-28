@@ -15,8 +15,8 @@ export class ActivityService {
    * @returns activity Activity
    */
   async create(req: TrackingRequest, dto: CreateActivityDto): Promise<Activity> {
-    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findUnique({
-      where: { userId: req.userId, projectId: dto.projectId },
+    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findFirst({
+      where: { AND: [{ userId: req.userId }, { projectId: dto.projectId }] },
       rejectOnNotFound: true,
     });
 
@@ -95,8 +95,8 @@ export class ActivityService {
       return activity;
     }
 
-    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findUnique({
-      where: { userId: req.userId, projectId: activity.projectId },
+    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findFirst({
+      where: { AND: [{ userId: req.userId }, { projectId: activity.projectId }] },
       rejectOnNotFound: true,
     });
     if (req.userRole === Role.SCIENTIST && projectUser != null) {
@@ -110,8 +110,8 @@ export class ActivityService {
    * Get All Activities of a project
    */
   async getProjectActivities(req: TrackingRequest, projectId: number): Promise<Activity[]> {
-    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findUnique({
-      where: { userId: req.userId, projectId },
+    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findFirst({
+      where: { AND: [{ userId: req.userId }, { projectId }] },
       rejectOnNotFound: false,
     });
 
@@ -130,8 +130,8 @@ export class ActivityService {
   async getProjectUserActivities(req: TrackingRequest, projectId: number, userId: number): Promise<Activity[]> {
     let projectUser: UsersOnProjects = null;
     if (req.userRole != Role.ADMIN) {
-      projectUser = await this.prisma.usersOnProjects.findUnique({
-        where: { userId: req.userId, projectId },
+      projectUser = await this.prisma.usersOnProjects.findFirst({
+        where: { AND: [{ userId: req.userId }, { projectId }] },
         rejectOnNotFound: false,
       });
     }

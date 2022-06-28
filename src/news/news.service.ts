@@ -110,8 +110,8 @@ export class NewsService {
       return true;
     }
 
-    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findUnique({
-      where: { userId: userId, projectId: projectId },
+    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findFirst({
+      where: { AND: [{ userId: userId }, { projectId: projectId }] },
       rejectOnNotFound: false,
     });
 
@@ -127,8 +127,8 @@ export class NewsService {
       return true;
     }
 
-    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findUnique({
-      where: { userId: userId, projectId: projectId },
+    const projectUser: UsersOnProjects = await this.prisma.usersOnProjects.findFirst({
+      where: { AND: [{ userId: userId }, { projectId: projectId }] },
       rejectOnNotFound: false,
     });
 

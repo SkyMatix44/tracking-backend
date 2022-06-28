@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Request, Response } from 'express';
 import { ExtractJwt } from 'passport-jwt';
@@ -30,11 +30,17 @@ export class AuthMiddleware implements NestMiddleware {
   use(req: TrackingRequest, res: Response, next: () => void): void {
     const extractJwtFunc = ExtractJwt.fromAuthHeaderAsBearerToken();
     const jwtToken: string = extractJwtFunc(req);
-    const data = this.authService.verifyToken(jwtToken);
-    req.jwtToken = jwtToken;
-    req.userId = data.sub;
-    req.userRole = Role[data.role];
 
-    next();
+    try {
+      const data = this.authService.verifyToken(jwtToken);
+      req.jwtToken = jwtToken;
+      req.userId = data.sub;
+      req.userRole = Role[data.role];
+
+      next();
+    } catch (e) {
+      console.error('Invalid JWT Token: ' + jwtToken);
+      throw new UnauthorizedException();
+    }
   }
 }

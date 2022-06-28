@@ -184,11 +184,8 @@ export class ProjectService {
         return true;
       } else if (user.role === Role.SCIENTIST) {
         // Scientist must be part of the project
-        const projectUser = await this.prisma.usersOnProjects.findUnique({
-          where: {
-            userId,
-            projectId,
-          },
+        const projectUser = await this.prisma.usersOnProjects.findFirst({
+          where: { AND: [{ userId }, { projectId }] },
         });
 
         if (projectUser) {
