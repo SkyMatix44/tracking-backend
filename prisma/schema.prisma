@@ -24,6 +24,7 @@ model User {
   validation_token   String?
   new_email          String?
   new_email_token    String?
+  new_password       String?
   new_password_token String?
 
   firstName String
@@ -63,9 +64,9 @@ model Project {
 
 // Define the `UsersOnProjects` table in the database
 model UsersOnProjects {
-  userId    Int     @unique
+  userId    Int
   user      User    @relation(fields: [userId], references: [id])
-  projectId Int     @unique
+  projectId Int
   project   Project @relation(fields: [projectId], references: [id])
 
   @@id([userId, projectId])

@@ -12,6 +12,7 @@ import { NewsController } from './news/news.controller';
 import { NewsModule } from './news/news.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProjectController } from './project/project.controller';
+import { ProjectModule } from './project/project.module';
 import { UniversityController } from './university/university.controller';
 import { UniversityModule } from './university/university.module';
 import { UserController } from './user/user.controller';
@@ -27,6 +28,7 @@ import { UserModule } from './user/user.module';
     ActivityTypeModule,
     ActivityModule,
     NewsModule,
+    ProjectModule,
   ],
   providers: [
     {
