@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Request, UseGuards } from '@nestjs/common';
 import { Role, User } from '@prisma/client';
 import { Roles } from '../auth/decorator';
 import { RolesGuard } from '../auth/guard/roles.guard';
@@ -60,7 +60,7 @@ export class UserController {
     return this.userService.update(req, userId, dto);
   }
 
-  @Post('update')
+  @Patch('update')
   update(@Request() req: TrackingRequest, @Body() dto: UpdateUserDto): Promise<User> {
     return this.userService.update(req, req.userId, dto);
   }
